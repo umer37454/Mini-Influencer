@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Attributes\Cast;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Builder;
 
 #[Fillable([
     'username',
@@ -47,7 +48,7 @@ class Profile extends Model
         return $this->hasOne(ProfileSnapshot::class)->latestOfMany('fetched_at');
     }
 
-    public function scopeStale($query)
+    public function scopeStale($query): Builder
     {
         return $query->where(function ($q) {
             $q->whereNull('last_refreshed_at')
@@ -55,7 +56,7 @@ class Profile extends Model
         })->where('status', '!=', 'fetching');
     }
 
-    public function scopeSearch($query, string $search)
+    public function scopeSearch($query, string $search): Builder
     {
         return $query->where('username', 'ilike', "%{$search}%");
     }
