@@ -15,6 +15,7 @@ class WatchlistController extends Controller
     public function index(Request $request): Response
     {
         $profiles = Profile::query()
+            ->with('latestSnapshot')
             ->when($request->search, fn(Builder $q) => $q->search($request->search))
             ->when($request->status, fn(Builder $q) => $q->where('status', $request->status))
             ->orderBy('created_at', 'desc')

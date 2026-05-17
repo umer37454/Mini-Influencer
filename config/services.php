@@ -38,4 +38,8 @@ return [
     'youtube' => [
         'api_key' => env('YOUTUBE_API_KEY'),
     ],
+
+    'youtube_webhook' => [
+        'secret' => env('WEBHOOK_SECRET'),
+    ],
 ];

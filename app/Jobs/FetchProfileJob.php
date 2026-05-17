@@ -55,10 +55,22 @@ class FetchProfileJob implements ShouldQueue
         }
 
         try {
-
             $this->profile->update([
                 'status' => 'fetching',
             ]);
+
+            $quotaKey = 'youtube_quota:' . now('Asia/Kolkata')->format('Y-m-d');
+
+            $quotaUsed = (int) Redis::get($quotaKey);
+
+            if ($quotaUsed >= 9000) {
+                Log::warning('YouTube quota almost exhausted', [
+                    'quota_used' => $quotaUsed,
+                ]);
+
+                $this->release(3600);
+                return;
+            }
 
             $response = Http::timeout(30)
                 ->connectTimeout(3)
@@ -93,6 +105,7 @@ class FetchProfileJob implements ShouldQueue
                 );
             }
 
+            Redis::incrby($quotaKey, 1);
             $data  = $response->json();
             $items = $data['items'] ?? [];
 
@@ -161,7 +174,6 @@ class FetchProfileJob implements ShouldQueue
                 'duration_ms' => $duration,
                 'outcome'     => 'success',
             ]);
-
         } catch (Throwable $e) {
             if ($e instanceof \RuntimeException) {
                 $failures = Redis::incr(
