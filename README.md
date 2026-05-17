@@ -131,7 +131,7 @@ php artisan migrate
 
 ---
 
-# 7. Seed Database
+# 7. Seed Database - Only if you want to test indexing
 
 ```bash
 php artisan db:seed --class=ProfileSeeder
